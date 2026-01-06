@@ -1,6 +1,17 @@
 ﻿# E视界 (DongguaTV Enhanced Edition)
 
-这是一个经过全面重构和升级的现代流媒体聚合播放器，基于 Node.js 和 Vue 3 构建。相比原版，本作引入了 Netflix 风格的沉浸式 UI、TMDb 数据驱动的动态榜单、以及智能的多源聚合搜索功能。
+这是一个经过全面重构和升级的现代流媒体聚合播放器，基于 Node.js 和 Vue 3 构建。相比原版 https://github.com/Minerchu/dongguaTV ，本作添加了许多功能。
+
+# 演示网站
+
+https://ednovas-test.vercel.app （不包含任何数据）
+
+<img width="2547" height="1226" alt="image" src="https://github.com/user-attachments/assets/15392a90-9078-45b6-828d-829402669950" />
+
+<img width="2547" height="1227" alt="image" src="https://github.com/user-attachments/assets/d03543f5-34a4-414b-a131-62eda0af21b2" />
+
+<img width="2547" height="1229" alt="image" src="https://github.com/user-attachments/assets/e8bd4e14-dbd2-4d49-a1fc-7979c1ca22a4" />
+
 
 ---
 
@@ -24,10 +35,12 @@
 
 ### 1. 🎬 双引擎数据驱动
 - **TMDb (The Movie Database)**：提供高质量的电影/剧集元数据（海报、背景图、评分、简介、演职员表）。
-- **CMS 聚合源 (Maccms)**：集成 **48+** 个第三方资源站 API，自动进行**全网测速**，智能过滤失效源，确保播放流畅。
+- **CMS 聚合源 (Maccms)**：可集成多个自定义第三方资源站 API，自动进行**全网测速**，智能过滤失效源，确保播放流畅。
 
 ### 2. 🔍 智能搜索与聚合
 - **实时流式搜索 (SSE)**：采用 Server-Sent Events 技术，搜索结果**边搜边显**，即时反馈，无需等待所有源响应。
+- **智能关键词匹配**：自动生成搜索变体（去除副标题、季数后缀等），同时搜索中英文名，大幅提高命中率。
+- **自动英中翻译**：检测到英文搜索词时，自动通过 TMDB 获取中文译名并一起搜索（如搜索 "Stranger Things" 会自动添加 "怪奇物语"），无需外部翻译 API。
 - **自动分组与实时合并**：同一影片的不同线路自动聚合，新搜索到的源实时合并到已有卡片，右上角源数量实时跳动。
 - **SQLite 永久缓存**：内置高性能 SQLite 数据库缓存，支持无限存储，读写速度极快，热搜词秒级响应。
 
@@ -679,12 +692,12 @@ docker run -d -p 3000:3000 \
 4.  点击 **映射/绑定域名**，输入您的域名 (如 `movie.example.com`)。
 5.  访问域名即可使用。
 
-### 🤖 Android APP 构建 (GitHub Actions)
+#### 🤖 Android APP 构建 (GitHub Actions)
 
-本项目配置了自动化构建流程，您可以轻松编译自己的 Android 客户端。
+本项目配置了自动化构建流程。由于构建 APK 耗时较长，**默认仅在推送 Tag 时触发构建**，普通代码提交不会触发。
 
 1.  **Fork 本仓库** 到您的 GitHub 账号。
-2.  **提交 Tag**：
+2.  **提交 Tag (触发构建)**：
     每当您推送一个以 `v` 开头的 Tag (例如 `v1.0.0`) 到仓库时，GitHub Actions 会自动触发构建。
     ```bash
     git tag v1.0.0
@@ -724,7 +737,16 @@ docker run -d -p 3000:3000 \
 
 如果您 Fork 了本项目并希望永久修改默认配置：
 
-1.  编辑 `capacitor.config.json`，修改 `server.url` 为您的服务器地址：
+##### 📱 配置文件位置
+
+| 版本 | 配置文件路径 | App ID |
+|-----|-------------|--------|
+| **手机版** | `capacitor.config.json` | `com.ednovas.donguatv` |
+| **电视版** | `android-tv/capacitor.config.json` | `com.ednovas.donguatv.tv` |
+
+两个版本的配置格式相同，只需修改 `server.url` 即可更改内置网站地址：
+
+1.  编辑对应的 `capacitor.config.json`，修改 `server.url` 为您的服务器地址：
     ```json
     {
       "appId": "com.ednovas.donguatv",
@@ -753,7 +775,9 @@ docker run -d -p 3000:3000 \
     ```
     APK 位于 `android/app/build/outputs/apk/release/`
 
+
 ---
+
 
 ## 💾 数据维护与备份
 
